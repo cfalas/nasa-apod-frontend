@@ -1,0 +1,57 @@
+<html>
+	<head>
+		<title>APOD</title>
+		<style>
+			img {
+				max-height: 80vh;
+				max-width: 100vw;
+			}
+			body{
+				max-height: 100vh;
+				text-align: center;
+			}
+		</style>
+		<script src="https://unpkg.com/jspdf@latest/dist/jspdf.min.js"></script>
+		<script
+		src="https://code.jquery.com/jquery-3.4.1.min.js"
+		integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+		crossorigin="anonymous"></script>
+		<script src="{{ url_for('static', filename='html2canvas.js')}}"></script>
+
+	</head>
+	<body>
+		<div id="content">
+			<h2>Viewing image of {{ date }}</h2>
+			<img crossorigin="anonymous" src="{{ image_link }}">
+			<p>{{ caption }}</p>
+		</div>
+		<button id="cmd">Generate PDF</button><br>
+		<a href="/">Choose another date</a>
+
+		<script>
+			var doc = new jsPDF();
+			var specialElementHandlers = {
+				'#editor': function (element, renderer) {
+					return true;
+				}
+			};
+		
+			$('#cmd').click(function () {
+				html2canvas($("#content")[0], {useCORS:true}).then(function(canvas){
+					const imgData = canvas.toDataURL('image/png');
+					const pdf = new jsPDF({
+						orientation: 'p',
+					});
+					const imgProps= pdf.getImageProperties(imgData);
+					const pdfWidth = pdf.internal.pageSize.getWidth();
+					const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+					pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+					pdf.save('download.pdf');
+				});
+			});
+		   
+			// This code is collected but useful, click below to jsfiddle link.
+		</script>
+		
+	</body>
+</html>
