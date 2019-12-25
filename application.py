@@ -9,6 +9,8 @@ app = Flask(__name__)
 def choose_date():
 	return render_template('choose_date.html')
 
+api_key = "DEMO_KEY"
+
 @app.route('/get_image')
 def get_image():
 	query_date = request.args.get("query_date")
@@ -17,7 +19,7 @@ def get_image():
 	if query_date>today_date:
 		return "404, date is in the future", 404
 	else:
-		reply = requests.get("https://api.nasa.gov/planetary/apod", {"date": query_date, "api_key":"API_KEY"})
+		reply = requests.get("https://api.nasa.gov/planetary/apod", {"date": query_date, "api_key":api_key})
 		reply = json.loads(reply.content)
 		url = ""
 		if hi_res:
@@ -25,3 +27,6 @@ def get_image():
 		else:
 			url = reply['url']
 		return render_template('view_image.html',image_link=url, caption = reply['title'], date=query_date)
+
+if __name__ == '__main__':
+    app.run(debug=True)
